@@ -18,6 +18,6 @@ class Invoice {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id")
-    var client: Client? = null
+    var clientId: Client? = null
 
 }
