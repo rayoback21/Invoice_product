@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS client (
     id SERIAL PRIMARY KEY,
-    nui VARCHAR(13) NOT NULL,
-    fullname VARCHAR(255),
+    nui VARCHAR(13) UNIQUE NOT NULL,
+    fullname VARCHAR(255) NOT NULL,
     address VARCHAR(255) NOT NULL,
     email VARCHAR (100)
     );

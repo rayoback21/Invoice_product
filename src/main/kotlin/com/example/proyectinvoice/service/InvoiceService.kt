@@ -3,7 +3,9 @@ package com.example.proyectinvoice.service
 
 
 import com.example.proyectinvoice.entity.Invoice
+import com.example.proyectinvoice.entity.InvoiceView
 import com.example.proyectinvoice.repository.InvoiceRepository
+import com.example.proyectinvoice.repository.InvoiceViewRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -12,10 +14,21 @@ import org.springframework.web.server.ResponseStatusException
 @Service
 class InvoiceService {
     @Autowired
+    lateinit var invoiceViewRepository: InvoiceViewRepository
+
+    @Autowired
     lateinit var invoiceRepository: InvoiceRepository
 
     fun list(): List<Invoice> {
         return invoiceRepository.findAll()
+    }
+
+    fun listView(): List<InvoiceView> {
+        return invoiceViewRepository.findAll()
+    }
+
+    fun getTotal(value:Double): List<Invoice> {
+        return invoiceRepository.findTotal(value)
     }
 
     fun save(invoice: Invoice): Invoice {
@@ -24,26 +37,26 @@ class InvoiceService {
 
     fun update(invoice: Invoice): Invoice {
         try {
-            invoiceRepository.findById(invoice.id)?: throw Exception("Id no Encontrado")
+            invoiceRepository.findById(invoice.id)
+                ?: throw Exception("Ya existe el id")
             return invoiceRepository.save(invoice)
-        }catch (ex:Exception){
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, ex.message)
+        } catch (ex: Exception) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND,ex.message)
         }
     }
 
-    fun updateTotal(invoice: Invoice): Invoice {
+    fun updateName(invoice: Invoice): Invoice? {
         try {
-
-            var response = invoiceRepository.findById(invoice.id) ?: throw Exception("Ya existe este ID")
+            var response = invoiceRepository.findById(invoice.id)
+                ?: throw Exception("Ya existe el id")
             response.apply {
-                total=invoice.total
-
+                code= invoice.code
             }
             return invoiceRepository.save(response)
+        } catch (ex: Exception) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, ex.message)
         }
-        catch(ex:Exception){
-            throw  ResponseStatusException(HttpStatus.NOT_FOUND, ex.message)
-        }
+
     }
 
     fun  delete(id: Long) {
