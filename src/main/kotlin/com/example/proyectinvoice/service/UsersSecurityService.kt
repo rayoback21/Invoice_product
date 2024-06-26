@@ -1,73 +1,41 @@
 package com.example.proyectinvoice.service
 
 
-
-import com.example.proyectinvoice.entity.Invoice
-import com.example.proyectinvoice.entity.InvoiceView
-import com.example.proyectinvoice.repository.InvoiceRepository
-import com.example.proyectinvoice.repository.InvoiceViewRepository
+import com.example.proyectinvoice.repository.UsersRepository
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
+import org.springframework.security.core.userdetails.User
+import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UserDetailsService
+import org.springframework.security.core.userdetails.UsernameNotFoundException
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
+
 
 @Service
-class InvoiceApplicationTest {
+class UsersSecurityService: UserDetailsService {
     @Autowired
-    lateinit var invoiceViewRepository: InvoiceViewRepository
+    lateinit var usersRepository: UsersRepository
+    @Override
+    @Throws(UsernameNotFoundException::class)
+    override fun loadUserByUsername(usersname: String): UserDetails? {
+        val userEntity = usersRepository.findByUsersname(usersname)
+            ?: throw
+            UsernameNotFoundException(
+                "User $usersname not found."
+            )
 
-    @Autowired
-    lateinit var invoiceRepository: InvoiceRepository
+        val role: Array<String?> = userEntity.role?.map {
+                role -> role.role }!!.toTypedArray()
 
-    fun list(): List<Invoice> {
-        return invoiceRepository.findAll()
-    }
-
-    fun listView(): List<InvoiceView> {
-        return invoiceViewRepository.findAll()
-    }
-
-    fun getTotal(value:Double): List<Invoice> {
-        return invoiceRepository.findTotal(value)
-    }
-
-    fun save(invoice: Invoice): Invoice {
-        return invoiceRepository.save(invoice)
-    }
-
-    fun update(invoice: Invoice): Invoice {
-        try {
-            invoiceRepository.findById(invoice.id)
-                ?: throw Exception("Ya existe el id")
-            return invoiceRepository.save(invoice)
-        } catch (ex: Exception) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND,ex.message)
-        }
-    }
-
-    fun updateName(invoice: Invoice): Invoice? {
-        try {
-            var response = invoiceRepository.findById(invoice.id)
-                ?: throw Exception("Ya existe el id")
-            response.apply {
-                code= invoice.code
-            }
-            return invoiceRepository.save(response)
-        } catch (ex: Exception) {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, ex.message)
-        }
-
-    }
-
-    fun  delete(id: Long) {
-        try {
-
-            var response = invoiceRepository.findById(id).orElseThrow{throw ResponseStatusException(HttpStatus.NOT_FOUND, "No Existe con el Id:  $id")}
-            invoiceRepository.delete(response)
-        }
-        catch(ex:Exception){
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al eliminar", ex)
-        }
+        return User.builder()
+            .username(userEntity.username)
+            .password(userEntity.password)
+            .roles(*role)
+            .accountLocked(userEntity.locked!!)
+            .disabled(userEntity.disabled!!)
+            .build()
     }
 
 }
+
+
+

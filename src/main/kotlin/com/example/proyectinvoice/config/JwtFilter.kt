@@ -1,4 +1,4 @@
-package com.example.Tabla2.config
+package com.example.proyectinvoice.config
 
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -16,7 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 @Component
 class JwtFilter: OncePerRequestFilter() {
     @Autowired
-    private val jwtUtil: JwtUtil? = null
+    private val jwtUtils: JwtUtils? = null
 
     @Autowired
     private val userDetailsService: UserDetailsService? = null
@@ -33,12 +33,12 @@ class JwtFilter: OncePerRequestFilter() {
         }
 
         val jwt = authHeader.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1].trim { it <= ' ' }
-        if (!jwtUtil!!.isValid(jwt)) {
+        if (!jwtUtils!!.isValid(jwt)) {
             filterChain.doFilter(request, response)
             return
         }
 
-        val username = jwtUtil.getUsername(jwt)
+        val username = jwtUtils.getUsername(jwt)
         val user: User = userDetailsService!!.loadUserByUsername(username) as User
 
         val authenticationToken = UsernamePasswordAuthenticationToken(

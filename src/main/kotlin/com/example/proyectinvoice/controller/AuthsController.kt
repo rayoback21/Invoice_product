@@ -1,41 +1,31 @@
 package com.example.proyectinvoice.controller
 
+import com.example.proyectinvoice.config.JwtUtils
+import com.example.proyectinvoice.dto.LoginDto
+import com.example.proyectinvoice.dto.TokensDto
 import com.example.proyectinvoice.entity.Client
 import com.example.proyectinvoice.service.ClientService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/client")
-class ClientController {
+@RequestMapping("/auths")
+class AuthsController {
     @Autowired
-    lateinit var clientService: ClientService
+    private val authensticationManager: AuthenticationManager? = null
+    @Autowired
+    private val jwtUtils: JwtUtils? = null
 
-    @GetMapping
-    fun list(): List<Client> {
-        return clientService.list()
-    }
-
-    @PostMapping
-    fun save(@RequestBody client: Client): Client {
-        return clientService.save(client)
-    }
-
-    @PutMapping
-    fun update(@RequestBody client: Client):ResponseEntity< Client> {
-        return ResponseEntity( clientService.update(client), HttpStatus.OK)
-    }
-
-    @PatchMapping
-    fun updateName(@RequestBody client: Client):ResponseEntity< Client> {
-        return ResponseEntity(clientService.updateName(client), HttpStatus.OK)
-    }
-
-    @DeleteMapping("/{id}")
-    fun delete(@PathVariable id:Long):ResponseEntity< String> {
-        clientService.delete(id)
-        return ResponseEntity( "Cliente Eliminado",HttpStatus.OK)
+    @PostMapping("/login")
+    fun login(@RequestBody loginDto: LoginDto): ResponseEntity<*>? {
+        val login = UsernamePasswordAuthenticationToken(loginDto.username, loginDto.password)
+        val authenstication: Authentication = authensticationManager!!.authenticate(login)
+        val response = TokensDto().apply { jwt= jwtUtils!!.create(loginDto.username)}
+        return ResponseEntity(response, HttpStatus.OK)
     }
 }

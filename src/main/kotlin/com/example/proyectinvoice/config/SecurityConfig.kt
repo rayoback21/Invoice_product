@@ -1,52 +1,55 @@
 package com.example.proyectinvoice.config
 
-import jakarta.servlet.FilterChain
-import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
+
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpHeaders
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.User
-import org.springframework.security.core.userdetails.UserDetailsService
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
-import org.springframework.stereotype.Component
-import org.springframework.web.filter.OncePerRequestFilter
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
+import org.springframework.http.HttpMethod
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.config.Customizer
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
+import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import org.springframework.security.crypto.password.PasswordEncoder
+import org.springframework.security.web.SecurityFilterChain
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
-@Component
-class JwtFilter: OncePerRequestFilter() {
+@Configuration
+class SecurityConfig {
     @Autowired
-    private val jwtUtil: JwtUtil? = null
+    private val jwtFilter: JwtFilter? = null
 
-    @Autowired
-    private val userDetailsService: UserDetailsService? = null
+    @Bean
+    @Throws(Exception::class)
+    open fun filterChain(http: HttpSecurity): SecurityFilterChain? {
+        http
+            .csrf { csrf -> csrf.disable() }
+            .cors(Customizer.withDefaults())
+            .sessionManagement { sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
+            .authorizeHttpRequests { authRequest ->
+                authRequest
+                    .requestMatchers("/auth/**").permitAll()
+                    .requestMatchers("/client/**").hasAnyRole("admin","ventas")
+                    .requestMatchers(HttpMethod.GET,"/product/**").hasAnyRole("admin")
 
-    override fun doFilterInternal(
-        request: HttpServletRequest,
-        response: HttpServletResponse,
-        filterChain: FilterChain
-    ) {
-        val authHeader = request.getHeader(HttpHeaders.AUTHORIZATION)
-        if (authHeader == null || authHeader.isEmpty() || !authHeader.startsWith("Bearer")) {
-            filterChain.doFilter(request, response)
-            return
-        }
+                    .anyRequest().denyAll()
+            }
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter::class.java)
 
-        val jwt = authHeader.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1].trim { it <= ' ' }
-        if (!jwtUtil!!.isValid(jwt)) {
-            filterChain.doFilter(request, response)
-            return
-        }
+        return http.build()
 
-        val username = jwtUtil.getUsername(jwt)
-        val user: User = userDetailsService!!.loadUserByUsername(username) as User
 
-        val authenticationToken = UsernamePasswordAuthenticationToken(
-            user.username, user.password, user.authorities
-        )
-        authenticationToken.details = WebAuthenticationDetailsSource().buildDetails(request)
-        SecurityContextHolder.getContext().authentication = authenticationToken
-        filterChain.doFilter(request, response)
     }
 
+    @Bean
+    @Throws(java.lang.Exception::class)
+    fun authenticationManager(configuration: AuthenticationConfiguration): AuthenticationManager? {
+        return configuration.authenticationManager
+    }
+
+    @Bean
+    fun passwordEncoder(): PasswordEncoder {
+        return BCryptPasswordEncoder()
+    }
 }

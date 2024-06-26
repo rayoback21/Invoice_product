@@ -1,4 +1,5 @@
 package com.example.proyectinvoice.dto
 
-class LoginDto {
+class TokensDto {
+    var jwt:String?=null
 }
