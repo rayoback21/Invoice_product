@@ -12,7 +12,7 @@ import jakarta.persistence.Table
 
 @Entity
 @Table(name = "users")
-class Users {
+class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(updatable = false)
@@ -30,7 +30,7 @@ class Users {
     var locked: Boolean? = null
     var disabled: Boolean? = null
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-    var role: List<Role>? = null
+    var roles: List<Roles>? = null
 
 
 }

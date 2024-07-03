@@ -1,7 +1,7 @@
 package com.example.proyectinvoice.service
 
 
-import com.example.proyectinvoice.repository.UsersRepository
+import com.example.proyectinvoice.repository.UserRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
@@ -11,25 +11,26 @@ import org.springframework.stereotype.Service
 
 
 @Service
-class UsersSecurityService: UserDetailsService {
+class UserSecurityService: UserDetailsService {
     @Autowired
-    lateinit var usersRepository: UsersRepository
+    private lateinit var userRepository: UserRepository
+
     @Override
     @Throws(UsernameNotFoundException::class)
-    override fun loadUserByUsername(usersname: String): UserDetails? {
-        val userEntity = usersRepository.findByUsersname(usersname)
+    override fun loadUserByUsername(username: String): UserDetails? {
+        val userEntity = userRepository.findByUsername(username)
             ?: throw
             UsernameNotFoundException(
-                "User $usersname not found."
+                "User $username not found."
             )
 
-        val role: Array<String?> = userEntity.role?.map {
-                role -> role.role }!!.toTypedArray()
+        val roles: Array<String?> = userEntity.roles?.map {
+                role -> role.roles }!!.toTypedArray()
 
         return User.builder()
             .username(userEntity.username)
             .password(userEntity.password)
-            .roles(*role)
+            .roles(*roles)
             .accountLocked(userEntity.locked!!)
             .disabled(userEntity.disabled!!)
             .build()
