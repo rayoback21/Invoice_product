@@ -16,7 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter
 @Component
 class JwtFilter: OncePerRequestFilter() {
     @Autowired
-    private val jwtUtils: JwtUtils? = null
+    private val jwtUtil: JwtUtil? = null
 
     @Autowired
     private val userDetailsService: UserDetailsService? = null

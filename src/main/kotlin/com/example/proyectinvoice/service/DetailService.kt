@@ -36,8 +36,9 @@ class DetailService {
 
             var response = detailRepository.findById(detail.id) ?: throw Exception("Ya existe este ID")
             response.apply {
+                validateDetail(detail)
                 quantity = detail.quantity
-
+                subTotal = detail.subTotal
             }
             return detailRepository.save(response)
         }
