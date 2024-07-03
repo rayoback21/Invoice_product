@@ -1,7 +1,8 @@
 package com.example.proyectinvoice.service
 
 
-import com.example.proyectinvoice.model.Detail
+
+import com.example.proyectinvoice.entity.Detail
 import com.example.proyectinvoice.repository.DetailRepository
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
