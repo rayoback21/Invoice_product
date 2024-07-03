@@ -10,16 +10,16 @@ import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 
 @Entity
-@Table(name = "role")
-class Role {
+@Table(name = "roles")
+class Roles {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(updatable = false)
     var id: Long? = null
-    var role: String? = null
+    var roles: String? = null
     @Column(name = "user_id")
     var userId: Long? = null
     @ManyToOne
     @JoinColumn(name = "users_id", referencedColumnName = "id", insertable=false, updatable=false)
-    var users:Users? = null
+    var user:User? = null
 }
