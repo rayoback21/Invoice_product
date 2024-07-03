@@ -33,12 +33,12 @@ class JwtFilter: OncePerRequestFilter() {
         }
 
         val jwt = authHeader.split(" ".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()[1].trim { it <= ' ' }
-        if (!jwtUtils!!.isValid(jwt)) {
+        if (!jwtUtil!!.isValid(jwt)) {
             filterChain.doFilter(request, response)
             return
         }
 
-        val username = jwtUtils.getUsername(jwt)
+        val username = jwtUtil.getUsername(jwt)
         val user: User = userDetailsService!!.loadUserByUsername(username) as User
 
         val authenticationToken = UsernamePasswordAuthenticationToken(
