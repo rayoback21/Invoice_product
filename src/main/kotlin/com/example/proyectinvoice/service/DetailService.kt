@@ -1,13 +1,10 @@
 package com.example.proyectinvoice.service
 
 
-
 import com.example.proyectinvoice.entity.Detail
 import com.example.proyectinvoice.repository.DetailRepository
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.server.ResponseStatusException
 
 @Service
 class DetailService {
@@ -18,45 +15,40 @@ class DetailService {
         return detailRepository.findAll()
     }
 
+    fun getById(id: Long): Detail {
+        return detailRepository.findById(id).orElseThrow { RuntimeException("Detail not found") }
+    }
+
     fun save(detail: Detail): Detail {
         return detailRepository.save(detail)
     }
 
-    fun update(detail: Detail): Detail {
-        try {
-            detailRepository.findById(detail.id)?: throw Exception("Id no Encontrado")
-            return detailRepository.save(detail)
-        }catch (ex:Exception){
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, ex.message)
-        }
+    fun update(id: Long, detail: Detail): Detail {
+        val existingDetail = detailRepository.findById(id).orElseThrow { RuntimeException("Detail not found") }
+        existingDetail.quantity = detail.quantity
+        existingDetail.price = detail.price
+        existingDetail.subTotal = detail.subTotal
+        existingDetail.invoiceId = detail.invoiceId
+        existingDetail.productId = detail.productId
+        return detailRepository.save(existingDetail)
     }
 
-    fun updateQuantity(detail: Detail): Detail {
-        try {
-
-            var response = detailRepository.findById(detail.id) ?: throw Exception("Ya existe este ID")
-            response.apply {
-                validateDetail(detail)
-                quantity = detail.quantity
-                subTotal = detail.subTotal
-            }
-            return detailRepository.save(response)
-        }
-
-        catch(ex:Exception){
-            throw  ResponseStatusException(HttpStatus.NOT_FOUND, ex.message)
+    fun delete(id: Long) {
+        if (detailRepository.existsById(id)) {
+            detailRepository.deleteById(id)
+        } else {
+            throw RuntimeException("Detail not found")
         }
     }
-
-    fun  delete(id: Long) {
-        try {
-
-            var response = detailRepository.findById(id).orElseThrow{throw ResponseStatusException(HttpStatus.NOT_FOUND, "No Existe con el Id:  $id")}
-            detailRepository.delete(response)
+    fun validateQuantity(quantity: Long?): Boolean? {
+        if (quantity == null) {
+            return null
         }
-        catch(ex:Exception){
-            throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al eliminar", ex)
+        return try {
+            val number = quantity.toInt()
+            number > 0
+        } catch (e: NumberFormatException) {
+            false
         }
     }
-
 }

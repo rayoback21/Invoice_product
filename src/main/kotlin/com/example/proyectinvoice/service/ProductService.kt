@@ -1,8 +1,5 @@
 package com.example.proyectinvoice.service
 
-
-
-
 import com.example.proyectinvoice.entity.Product
 import com.example.proyectinvoice.repository.ProductRepository
 import org.springframework.beans.factory.annotation.Autowired
@@ -57,5 +54,17 @@ class ProductService {
             throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error al eliminar el producto", ex)
         }
     }
-
+    fun isValidateStock(stock: Long?): Boolean? {
+        if (stock == null){
+            return null
+        }
+        return try {
+            val number = stock.toInt()
+            number > 0
+        } catch (e:NumberFormatException){
+            false
+        }
+    }
 }
+
+

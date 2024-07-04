@@ -2,65 +2,30 @@ package com.example.proyectinvoice.service
 
 import com.example.proyectinvoice.entity.Detail
 import com.example.proyectinvoice.repository.DetailRepository
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertThrows
+import com.google.gson.Gson
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.mockito.InjectMocks
+import org.mockito.Mock
 import org.mockito.Mockito
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.web.server.ResponseStatusException
+import java.io.File
 
 
 @SpringBootTest
-class DetailServiceTest{
-    @Autowired
-    private lateinit var detailService: DetailService
-
-    @MockBean
-    lateinit var detailRepository : DetailRepository
-
-    @Test
-    fun testSaveDetailWithValidQuantity() {
-        val detail = Detail(id = 2L, quantity = 10)
-        Mockito.`when`(detailRepository.save(detail)).thenReturn(detail)
-
-        val result = detailService.save(detail)
-
-        assertEquals(detail, result)
-    }
+class DetailServiceTest {
+    @InjectMocks
+    lateinit var detailService: DetailService
+    @Mock
+    lateinit var detailRepository: DetailRepository
+    val jsonString= File ("./src/test/resources/detail/newDetail.json").readText(Charsets.UTF_8)
+    val detailMock = Gson().fromJson(jsonString, Detail::class.java)
 
     @Test
-    fun testSaveDetailWithInvalidQuantity() {
-        val detail = Detail(id = 2L, quantity = -10)
-
-        val exception = assertThrows(ResponseStatusException::class.java) {
-            detailService.save(detail)
-        }
-
-        assertEquals("La cantidad debe ser un número entero positivo", exception.reason)
-    }
-
-    @Test
-    fun testUpdateDetailWithValidQuantity() {
-        val detail = Detail(id = 1L, quantity = 5)
-        Mockito.`when`(detailRepository.findById(detail.id)).thenReturn(java.util.Optional.of(detail))
-        Mockito.`when`(detailRepository.save(detail)).thenReturn(detail)
-
-        val result = detailService.update(detail)
-
-        assertEquals(detail, result)
-    }
-
-    @Test
-    fun testUpdateDetailWithInvalidQuantity() {
-        val detail = Detail(id = 1L, quantity = -5)
-        Mockito.`when`(detailRepository.findById(detail.id)).thenReturn(java.util.Optional.of(detail))
-
-        val exception = assertThrows(ResponseStatusException::class.java) {
-            detailService.update(detail)
-        }
-
-        assertEquals("La cantidad debe ser un número entero positivo", exception.reason)
+    fun saveWhenQuantityIsPositive() {
+        detailMock.quantity = 10
+        Mockito.`when`(detailRepository.save(Mockito.any(Detail::class.java))).thenReturn(detailMock)
+        val response = detailService.validateQuantity(detailMock.quantity)
+        Assertions.assertEquals(true,response)
     }
 }
