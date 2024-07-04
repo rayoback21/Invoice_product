@@ -27,6 +27,10 @@ class InvoiceService {
         return invoiceViewRepository.findAll()
     }
 
+    fun getById(id: Long): Invoice {
+        return invoiceRepository.findById(id).orElseThrow { RuntimeException("Invoice not found") }
+    }
+
     fun getTotal(value:Double): List<Invoice> {
         return invoiceRepository.findTotal(value)
     }
@@ -70,4 +74,14 @@ class InvoiceService {
         }
     }
 
+    fun validateCode (code: String?): Boolean? {
+        if (code == null) {
+            return false
+        }
+
+        val regex = Regex("\\d{3}-\\d{3}-\\d{9}")
+        return regex.matches(code)
+    }
 }
+
+

@@ -22,6 +22,15 @@ class ClientService {
         return clientRepository.save(client)
     }
 
+    fun validateNui (nui:String?): Boolean?{
+
+        if (nui == null){
+        return false
+    }
+        val regex = Regex("^\\d{10}$")
+        return regex.matches(nui)
+    }
+
     fun update(client: Client): Client {
         try {
             clientRepository.findById(client.id)?: throw Exception("Cliente no Encontrado")

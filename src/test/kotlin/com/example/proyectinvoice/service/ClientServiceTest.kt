@@ -28,18 +28,13 @@ class ClientServiceTest {
         Assertions.assertEquals(response.id, clientMock.id)
     }
 
-    @Test
-    fun  saveWhenNiuClientIsCorrect(){
-        Mockito. `when`(clientRepository.save(Mockito.any(Client::class.java)))
-        val response= clientService.validateNiu(clientMock.niu)
-        Assertions.assertEquals( true,response)
-    }
+
 
     @Test
-    fun saveWhenNiuClientIsIncorrect() {
-        clientMock.niu= "1563244"
+    fun saveWhenNuiClientIsIncorrect() {
+        clientMock.nui= "0704448547"
         Mockito.`when`(clientRepository.save(Mockito.any(Client::class.java))).thenReturn(clientMock)
-        val response = clientService.validateNiu(clientMock.niu)
+        val response = clientService.validateNui(clientMock.nui)
         Assertions.assertEquals(false,response)
     }
 

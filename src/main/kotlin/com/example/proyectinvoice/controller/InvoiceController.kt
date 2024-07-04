@@ -4,13 +4,16 @@ package com.example.proyectinvoice.controller
 import com.example.proyectinvoice.entity.Invoice
 import com.example.proyectinvoice.entity.InvoiceView
 import com.example.proyectinvoice.service.InvoiceService
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping("/invoice")
-class InvoiceController(private val invoiceService: InvoiceService) {
+class InvoiceController {
+    @Autowired
+    lateinit var invoiceService: InvoiceService
     @GetMapping("/{value}/get-total")
     fun getTotal(@PathVariable value: Double): List<Invoice>{
         return invoiceService.getTotal(value)

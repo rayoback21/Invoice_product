@@ -20,6 +20,6 @@ class Roles {
     @Column(name = "user_id")
     var userId: Long? = null
     @ManyToOne
-    @JoinColumn(name = "users_id", referencedColumnName = "id", insertable=false, updatable=false)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", insertable=false, updatable=false)
     var user:User? = null
 }
